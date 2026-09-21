@@ -1,0 +1,87 @@
+{
+  "name": "nestegg",
+  "productName": "NestEgg",
+  "version": "1.0.0",
+  "description": "Offline-Buchhaltung für Einzelunternehmer und kleine Vereine: EÜR, Umsatzsteuer, E-Rechnung, SEPA und Vereinssphären. Alle Daten bleiben lokal.",
+  "keywords": [
+    "buchhaltung",
+    "euer",
+    "umsatzsteuer",
+    "e-rechnung",
+    "zugferd",
+    "xrechnung",
+    "datev",
+    "gobd",
+    "sepa",
+    "verein",
+    "electron",
+    "offline"
+  ],
+  "homepage": "https://github.com/riccardo-darcangelo/nestegg#readme",
+  "bugs": {
+    "url": "https://github.com/riccardo-darcangelo/nestegg/issues",
+    "email": "info@darcdesign.de"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riccardo-darcangelo/nestegg.git"
+  },
+  "author": "Riccardo D'Arcangelo <info@darcdesign.de>",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "out/src/main/index.js",
+  "scripts": {
+    "build": "tsc && node tools/copy-assets.js",
+    "start": "npm run build && electron .",
+    "test": "npm run build && node --test \"out/test/**/*.test.js\"",
+    "typecheck": "tsc --noEmit",
+    "smoke": "npm run build && electron out/tools/start-smoke.js",
+    "smoke:a11y": "npm run build && electron out/tools/a11y-smoke.js",
+    "smoke:lock": "npm run build && node out/tools/lock-smoke.js",
+    "smoke:pdf": "npm run build && electron out/tools/pdf-smoke.js",
+    "preview": "npm run build && node out/tools/serve.js",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win nsis"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.1",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "jsqr": "^1.4.0",
+    "typescript": "^7.0.2"
+  },
+  "build": {
+    "appId": "de.darcangelo.nestegg",
+    "productName": "NestEgg",
+    "files": [
+      "out/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD-PARTY-NOTICES.md"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "NestEgg"
+    }
+  }
+}

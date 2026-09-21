@@ -1,0 +1,25 @@
+# Abhängigkeiten und Bauergebnisse
+node_modules/
+dist/
+out/
+*.tsbuildinfo
+
+# Erzeugte Beispieldokumente der Prüfläufe. Sie entstehen aus der Fixture neu
+# und haben im Repo nichts zu suchen: hier lagen schon einmal echte Firmen-
+# und Bankdaten drin, weil ein Lauf mit dem richtigen Bestand gemacht wurde.
+tools/ausgabe/
+tools/vorlage/
+
+# Der Datenordner im Entwicklungsbetrieb. Enthält eine echte Buchführung.
+daten-dev/
+
+# Zugangsdaten für npm-Registrierungen. Gehört niemals ins Repo.
+.npmrc
+
+# Windows und Editoren
+Thumbs.db
+desktop.ini
+NUL
+.vscode/
+.idea/
+*.swp

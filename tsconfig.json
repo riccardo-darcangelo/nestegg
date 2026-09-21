@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "node16",
+    "moduleResolution": "node16",
+
+    "rootDir": ".",
+    "outDir": "out",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": false,
+
+    "allowJs": true,
+    "checkJs": false,
+
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": false,
+    "pretty": true
+  },
+  "include": ["src/**/*", "test/**/*", "tools/**/*"],
+  "exclude": ["node_modules", "out", "dist", "src/renderer", "tools/ausgabe"]
+}

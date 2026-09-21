@@ -1,0 +1,9 @@
+# Im Repo stehen überall LF. Was im Arbeitsverzeichnis daraus wird, entscheidet
+# das Betriebssystem, damit ein Wechsel von Windows zu Linux nicht jede Datei
+# als geändert zeigt.
+* text=auto eol=lf
+
+# Binärdateien bleiben unangetastet.
+*.png binary
+*.ico binary
+*.pdf binary
