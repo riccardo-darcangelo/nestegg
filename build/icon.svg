@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    NestEgg.
+
+    Ein Ei über einem Doppelstrich. Das Ei steht für die Rücklage, die der Name
+    meint, der Doppelstrich ist das Zeichen unter der Endsumme und damit das
+    eine Symbol, das nur Buchhaltung bedeutet. Zusammen lesen sie sich auch als
+    Ei in einer Nestmulde.
+
+    Bewusst nur zwei Formen, keine Verläufe im Motiv und kräftige Kanten, damit
+    das Zeichen bei 16 Pixeln nicht zerfällt.
+  -->
+  <defs>
+    <linearGradient id="grund" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2b46"/>
+      <stop offset="1" stop-color="#0d1524"/>
+    </linearGradient>
+    <linearGradient id="schale" x1="0.3" y1="0" x2="0.75" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d8e3f2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#grund)"/>
+
+  <!-- Ei: oben schmaler, unten voller. Die Form entsteht aus zwei Bögen. -->
+  <path d="M256 66
+           c61 0 111 78 111 149
+           c0 65 -49 111 -111 111
+           c-62 0 -111 -46 -111 -111
+           c0 -71 50 -149 111 -149 Z"
+        fill="url(#schale)"/>
+
+  <!--
+    Der Doppelstrich unter der Summe, zugleich die Nestmulde.
+    Strichstärke und Lücke sind gleich breit, damit bei 16 Pixeln aus den
+    beiden Linien nicht ein einziger Balken wird.
+  -->
+  <rect x="116" y="364" width="280" height="32" rx="16" fill="#4f9cf9"/>
+  <rect x="156" y="428" width="200" height="32" rx="16" fill="#4f9cf9"/>
+</svg>

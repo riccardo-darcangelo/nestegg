@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; frame-src 'self';">
+<title>NestEgg</title>
+<link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+  <!--
+    Vor dem Inhalt stehen rund zwanzig Navigationspunkte. Wer mit der Tastatur
+    arbeitet, tabbt sich sonst bei jedem Ansichtswechsel durch alle hindurch.
+    Der Sprunglink ist unsichtbar, bis er den Fokus bekommt.
+  -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-name">NestEgg</span>
+        <span class="brand-year" id="brand-year"></span>
+      </div>
+      <div class="profile-switch" id="profile-switch"></div>
+      <nav class="nav" id="nav" aria-label="Bereiche"></nav>
+      <div class="sidebar-foot" id="sidebar-foot"></div>
+    </aside>
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
+  <!--
+    Kurzmeldungen werden angesagt, sobald sie erscheinen. Ohne aria-live
+    bekommt sie nur mit, wer gerade hinsieht: "Rechnung festgeschrieben" oder
+    "Das Passwort passt nicht" ginge an einer Sprachausgabe vorbei.
+    Höflich, nicht bestimmend: die Meldung wartet, bis der Vorlesefluss eine
+    Lücke hat, statt dazwischenzureden.
+  -->
+  <div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+  <div id="modal-root"></div>
+
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/views/document-editor.js"></script>
+  <script src="scripts/views/dunning.js"></script>
+  <script src="scripts/views/profiles.js"></script>
+  <script src="scripts/views/security.js"></script>
+  <script src="scripts/views/einvoice.js"></script>
+  <script src="scripts/views/kanzlei.js"></script>
+  <script src="scripts/views/travel.js"></script>
+  <script src="scripts/views/dashboard.js"></script>
+  <script src="scripts/views/entries.js"></script>
+  <script src="scripts/views/invoices.js"></script>
+  <script src="scripts/views/offers.js"></script>
+  <script src="scripts/views/customers.js"></script>
+  <script src="scripts/views/projects.js"></script>
+  <script src="scripts/views/time.js"></script>
+  <script src="scripts/views/recurring.js"></script>
+  <script src="scripts/views/bank.js"></script>
+  <script src="scripts/views/assets.js"></script>
+  <script src="scripts/views/analytics.js"></script>
+  <script src="scripts/views/forecast.js"></script>
+  <script src="scripts/views/deadlines.js"></script>
+  <script src="scripts/views/euer.js"></script>
+  <script src="scripts/views/spheres.js"></script>
+  <script src="scripts/views/members.js"></script>
+  <script src="scripts/views/donations.js"></script>
+  <script src="scripts/views/reserves.js"></script>
+  <script src="scripts/views/vat.js"></script>
+  <script src="scripts/views/design.js"></script>
+  <script src="scripts/views/settings.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

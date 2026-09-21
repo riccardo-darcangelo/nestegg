@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    Kleinfassung für 16 und 20 Pixel.
+
+    Bei dieser Größe steht ein Bildpunkt für 32 Einheiten. Zwei Striche mit
+    Lücke dazwischen ergeben dort einen einzigen Balken, deshalb bleibt hier
+    nur einer stehen, dafür kräftiger. Das Ei wird größer und rückt nach oben,
+    damit die Silhouette trägt.
+  -->
+  <defs>
+    <linearGradient id="grund" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2b46"/>
+      <stop offset="1" stop-color="#0d1524"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#grund)"/>
+
+  <path d="M256 56
+           c68 0 124 86 124 164
+           c0 72 -55 122 -124 122
+           c-69 0 -124 -50 -124 -122
+           c0 -78 56 -164 124 -164 Z"
+        fill="#ffffff"/>
+
+  <rect x="104" y="386" width="304" height="52" rx="26" fill="#4f9cf9"/>
+</svg>

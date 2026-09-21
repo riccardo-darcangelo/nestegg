@@ -1,0 +1,1091 @@
+/*
+  NestEgg.
+
+  Der Ton ist Werkstatt, nicht Kanzlei: technisch, präzise, ohne Zierrat.
+  Träger dieser Haltung ist Bahnschrift, der DIN-1451-Abkömmling von Windows.
+  Sie steht auf Überschriften, Kennzahlen und Tabellenköpfen und gibt der App
+  denselben Charakter, den die erzeugten Dokumente nach DIN 5008 haben.
+  Fließtext und Formulare bleiben bei Segoe UI, die bei kleinen Graden besser
+  liest.
+
+  Bewusst keine Webfonts: die App läuft offline und soll in zehn Jahren noch
+  genauso aussehen.
+
+  Zahlen sind der Inhalt dieser Anwendung, deshalb überall Tabellenziffern und
+  rechtsbündige Beträge.
+*/
+
+/*
+  Die Palette ist gerechnet, nicht gegriffen: dev/palette.js leitet sie aus
+  drei Regeln ab und prüft jeden Wert gegen WCAG. Wer hier etwas ändert,
+  ändert es dort und lässt das Skript laufen.
+
+  Erstens: kein reines Schwarz. Weiße Schrift auf schwarzem Grund fängt an zu
+  leuchten, die Ränder verwischen. Der Boden ist deshalb #15181b.
+
+  Zweitens: Höhe entsteht durch Helligkeit, nicht durch Schatten. Ein
+  schwarzer Schatten auf dunklem Grund ist unsichtbar. Jede Stufe legt eine
+  dünne Schicht über den Boden, und die Schicht ist nicht weiß, sondern ein
+  sehr blasses Blaugrün. Das gibt den Flächen einen eigenen Ton statt
+  Fotograu, ohne dass irgendwo Farbe steht.
+
+  Drittens: keine volle Deckkraft auf Schrift. Drei Stufen, deren Abstände
+  die Rangfolge tragen. Material nennt dafür 87, 60 und 38 Prozent; die 38
+  sind dort für Deaktiviertes gedacht und bleiben hier unter den 4,5:1, die
+  Fließtext braucht. Die unterste Stufe ist deshalb ausgerechnet statt
+  übernommen.
+
+  Der Akzent ist das Teal von GuildNest, aber entsättigt und eine Spur
+  dunkler. Ungebremst wäre es ein Neonstrich, und Neon auf Schwarz ist genau
+  der Look, den jede zweite Oberfläche gerade hat.
+*/
+:root {
+  /*
+    Sagt dem Browser, dass hier alles dunkel ist. Damit kommen Kontrollkästchen,
+    Auswahlfelder, der Kalender im Datumsfeld und die Bildlaufleisten von
+    vornherein dunkel, statt als weiße Kacheln aus einer anderen Welt
+    dazwischenzustehen. Eine Zeile anstelle von einem Dutzend Nachbauten.
+  */
+  color-scheme: dark;
+
+  --bg: #15181b;
+  --bg-elevated: #1c2225;
+  --bg-panel: #1f2729;
+  --bg-hover: #252f30;
+  --bg-raised: #2d393a;
+  --border: #2a3536;
+  --border-strong: #3b4e4e;
+  /*
+    Der Rand von Bedienelementen. WCAG 1.4.11 verlangt dafür 3:1, denn er
+    ist das, woran man ein Eingabefeld überhaupt als solches erkennt. Für
+    bloße Trennlinien gilt das nicht, die bleiben bei --border.
+  */
+  --border-control: #577673;
+
+  --text: #e1e1e1;
+  --text-muted: #b9babb;
+  --text-faint: #8a8c8d;
+
+  --accent: #56d3c2;
+  --accent-bright: #5fe8d6;
+  --accent-deep: #1b887a;
+  --accent-soft: #56d3c21f;
+  --accent-glow: #56d3c23d;
+  /* Die Schrift, die auf einer Akzentfläche steht. Dunkel, nicht weiß. */
+  --on-accent: #0d1112;
+
+  --income: #56c468;
+  --expense: #ed8e8e;
+  --warn: #e5bc77;
+
+  /* Werkzeug, nicht Pille: kleine Radien, überall dieselben zwei. */
+  --radius: 6px;
+  --radius-sm: 4px;
+  /* Nur noch dort, wo wirklich etwas über allem liegt. */
+  --shadow: 0 16px 44px #00000073;
+
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Bahnschrift ist eine variable Schrift: Breite und Stärke sind stufenlos. */
+  --font-display: "Bahnschrift", "DIN Alternate", "Segoe UI", sans-serif;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  /*
+    Die Fläche ist eine Fläche. Hier standen zwei weiche Farbwolken, die dem
+    Fenster Tiefe geben sollten. Sie geben ihm vor allem das Aussehen jeder
+    anderen dunklen Oberfläche. Tiefe kommt jetzt aus der Staffelung der
+    Helligkeiten, und die muss man nicht erst durch einen Nebel hindurch
+    erkennen.
+  */
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* Überschriften und Zahlen tragen die Schrift mit Charakter. */
+h1, h2, h3,
+.page-title, .panel-title, .stat-value, .brand-name,
+thead th, .seg button, .nav-item, .btn {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 100;
+}
+
+/*
+  Der Sprunglink. Nicht versteckt, sondern aus dem Bild geschoben: was
+  display:none trägt, ist auch für die Tastatur weg, und dann nützt er
+  niemandem.
+*/
+.skip-link {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 200;
+  transform: translateY(-120%);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 0 0 var(--radius) 0;
+  text-decoration: none;
+}
+.skip-link:focus { transform: none; }
+
+/* ---------------------------------------------------------------- Layout */
+
+.app { display: grid; grid-template-columns: 236px 1fr; height: 100vh; }
+/* Angesprungen, aber nicht wie ein Bedienelement umrandet. */
+.main:focus { outline: none; }
+
+.sidebar {
+  /* Eine Stufe unter dem Inhalt, nicht darüber: die Leiste tritt zurück. */
+  background: #101314;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px 12px;
+  overflow: hidden;
+}
+
+.brand { display: flex; align-items: baseline; gap: 9px; padding: 0 12px 20px; }
+.brand-name {
+  font-size: 19px; font-weight: 700; letter-spacing: 0.4px;
+  font-variation-settings: "wdth" 90;
+  color: var(--text);
+}
+.brand-year { font-size: 12px; color: var(--text-faint); }
+
+.nav { display: flex; flex-direction: column; gap: 1px; flex: 1; overflow-y: auto; }
+
+/*
+  Der aktive Punkt wird nicht nur eingefärbt, sondern trägt links einen Balken.
+  Farbe allein soll nie die einzige Auskunft sein.
+*/
+.nav-item {
+  position: relative;
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 12px;
+  border: none; background: none; cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-align: left; width: 100%;
+  font-size: 13.5px;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.nav-item::before {
+  content: "";
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 0; border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transition: height 0.2s var(--ease);
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-soft); color: var(--accent-bright); font-weight: 600;
+}
+.nav-item.active::before { height: 58%; }
+.nav-item .icon { width: 17px; text-align: center; flex-shrink: 0; opacity: 0.85; font-size: 13px; }
+.nav-item.active .icon { opacity: 1; }
+.nav-item .badge {
+  font-family: var(--font);
+  margin-left: auto; font-size: 11px; padding: 1px 6px; border-radius: 3px;
+  background: var(--bg-raised); color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.nav-item.active .badge { background: var(--accent-glow); color: var(--accent-bright); }
+
+.nav-section {
+  font-family: var(--font-display);
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.4px;
+  font-variation-settings: "wdth" 87;
+  color: var(--text-faint); padding: 18px 12px 7px;
+}
+
+.sidebar-foot { padding: 10px; font-size: 11px; color: var(--text-faint); border-top: 1px solid var(--border); }
+
+.main { overflow-y: auto; padding: 26px 32px 64px; }
+
+/*
+  Beim Ansichtswechsel laufen die Blöcke gestaffelt ein. Ein einziger, ruhiger
+  Auftritt wirkt mehr als viele kleine Effekte an allen Ecken.
+*/
+.main > * {
+  animation: rise 0.34s var(--ease) both;
+}
+.main > *:nth-child(2) { animation-delay: 0.04s; }
+.main > *:nth-child(3) { animation-delay: 0.08s; }
+.main > *:nth-child(4) { animation-delay: 0.12s; }
+.main > *:nth-child(n+5) { animation-delay: 0.15s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main > * { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/*
+  Der Seitenkopf sitzt auf einer Linie, wie der Briefkopf auf den Dokumenten,
+  die diese App erzeugt. Das ist kein Zierrat: es trennt die Überschrift vom
+  Inhalt, ohne dafür Abstand zu verbrauchen, und nimmt die DIN-Anmutung der
+  Rechnungen in die Oberfläche hinein.
+*/
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 20px; margin-bottom: 20px; padding-bottom: 13px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.page-title {
+  font-size: 27px; font-weight: 700; margin: 0;
+  line-height: 1.1;
+  /* Schmal geschnitten: so liest sich Bahnschrift technisch statt bloß groß. */
+  font-variation-settings: "wdth" 82;
+  letter-spacing: 0.3px;
+}
+.page-sub { color: var(--text-muted); font-size: 13px; margin: 4px 0 0; max-width: 70ch; }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------------------------------------------------------------- Bausteine */
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 17px;
+  margin-bottom: 14px;
+}
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.panel-title {
+  font-size: 13px; font-weight: 700; margin: 0;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  font-variation-settings: "wdth" 82;
+  color: var(--text);
+}
+.panel-note { font-family: var(--font); font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+
+/* Zwischenüberschrift innerhalb eines Panels, wenn ein Formular mehrere
+   Themen hat und die Felder sonst ununterscheidbar aneinanderhängen. */
+.field-group-title {
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px;
+  margin: 6px 0 9px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+
+.grid { display: grid; gap: 14px; }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1180px) { .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/*
+  Kennzahl-Kachel.
+
+  Aufbau ist immer derselbe: kleines Label, große Zahl, eine Zeile Kontext.
+  Die Zahl allein sagt nichts, erst der Kontext macht sie zur Aussage.
+  Der Balken steht links wie am Rücken eines Registers, nicht oben als
+  Zierstreifen. Er trägt die Farbe der Kennzahl und ist damit ein zweites
+  Merkmal neben der Zahl, für den Fall, dass Farbe allein nicht ankommt.
+*/
+.stat {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 16px 12px 18px;
+  overflow: hidden;
+  color: var(--accent);
+  transition: border-color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.stat::before {
+  content: "";
+  position: absolute; top: 0; bottom: 0; left: 0; width: 2px;
+  background: currentColor;
+}
+.stat:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
+.stat-label {
+  font-family: var(--font);
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1.1px; font-weight: 600;
+}
+.stat-value {
+  font-size: 26px; font-weight: 600; margin-top: 5px;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.2px;
+  color: var(--text); line-height: 1.15;
+}
+.stat-hint {
+  font-family: var(--font);
+  font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.4;
+}
+
+.stat.good { color: var(--income); }
+.stat.bad { color: var(--expense); }
+.stat.accent { color: var(--accent); }
+.stat.good .stat-value { color: var(--income); }
+.stat.bad .stat-value { color: var(--expense); }
+.stat.accent .stat-value { color: var(--accent); }
+
+/* ---------------------------------------------------------------- Knöpfe */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-control); background: var(--bg-elevated);
+  color: var(--text); cursor: pointer; font-size: 13px; font-weight: 520;
+  transition: background 0.12s, border-color 0.12s, transform 0.06s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-hover); border-color: var(--accent-deep); }
+.btn:active { transform: translateY(1px); }
+/*
+  Der Fokus, an einer Stelle für alles.
+
+  Wer mit der Tastatur arbeitet, sieht nur hieran, wo er gerade steht. WCAG
+  2.4.7 verlangt, dass das sichtbar ist, und 1.4.11 verlangt für den
+  Indikator 3:1 gegen die Umgebung. Der Akzent bringt 9,7:1 auf dem Grund,
+  das trägt.
+
+  :focus-visible statt :focus, damit ein Mausklick nicht jeden Knopf
+  einrahmt. Und ein zweiter, dunkler Ring außen, falls das Element auf einer
+  hellen Fläche sitzt: einer der beiden hat dann immer Kontrast.
+*/
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nav-item:focus-visible { outline-offset: -2px; }
+/* Der einzige Ort, an dem die Akzentfarbe eine Fläche füllt. Ein Verlauf
+   und ein Glühen standen hier einmal: beides sah aus wie eine Leuchtröhre
+   und nicht wie ein Knopf. */
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent); color: var(--on-accent); font-weight: 700;
+}
+.btn.primary:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+.btn.ghost { background: none; border-color: transparent; color: var(--text-muted); }
+.btn.ghost:hover { background: var(--bg-hover); color: var(--text); }
+.btn.danger { color: var(--expense); border-color: color-mix(in srgb, var(--expense) 34%, transparent); }
+.btn.danger:hover { background: color-mix(in srgb, var(--expense) 12%, transparent); }
+.btn.small { padding: 5px 10px; font-size: 12px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------- Formulare */
+
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+.field label { font-size: 12px; color: var(--text-muted); font-weight: 540; }
+.field .help { font-size: 11.5px; color: var(--text-faint); }
+
+input[type="text"], input[type="date"], input[type="number"], input[type="email"],
+input[type="tel"], input[type="password"], input[type="search"], select, textarea {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  width: 100%;
+  transition: border-color 0.12s, background 0.12s;
+}
+/* Beim Tippen ist der Fokus immer sichtbar, auch nach einem Mausklick: hier
+   will man sehen, in welchem Feld man schreibt. Der Ring ist deckend statt
+   angehaucht, damit er die 3:1 aus 1.4.11 wirklich erreicht. */
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--accent); background: var(--bg);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+input.amount, input.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Rückmeldung an Feldern mit Prüfziffer, etwa der Gläubiger-ID. Farbe ist
+   dabei nie die einzige Auskunft: daneben steht immer der erklärende Text. */
+input.good-input { border-color: var(--income); }
+input.bad-input { border-color: var(--expense); }
+textarea { resize: vertical; min-height: 70px; }
+select { cursor: pointer; }
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+
+/* Das ganze Label ist das Klickziel, nicht nur das Kästchen. Deshalb hier
+   die Mindesthöhe: so ist das Ziel auch mit grobem Zeigegerät zu treffen. */
+.check { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; cursor: pointer; min-height: 24px; }
+.check input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.check span { font-size: 13px; }
+
+.seg { display: inline-flex; background: var(--bg-elevated); border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+.seg button {
+  border: none; background: none; padding: 6px 14px; border-radius: 5px;
+  cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 540;
+}
+.seg button {
+  font-size: 12.5px; letter-spacing: 0.3px;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.seg button.active {
+  background: var(--accent); color: var(--on-accent); font-weight: 700;
+}
+.seg button.active.income { background: var(--income); }
+.seg button.active.expense { background: var(--expense); }
+
+/* ---------------------------------------------------------------- Tabellen */
+
+.table-wrap { overflow-x: auto; margin: 0 -17px -15px; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-faint); font-weight: 700;
+  font-variation-settings: "wdth" 87;
+  padding: 8px 12px; border-bottom: 1px solid var(--border-strong); white-space: nowrap;
+}
+tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable { transition: background 0.12s var(--ease); }
+tbody tr.clickable:hover { background: var(--bg-hover); }
+/* Die Zeile lässt sich anspringen, also muss man auch sehen, wo man steht.
+   Der Rahmen liegt innen, sonst schneidet ihn der Tabellenrand ab. */
+tbody tr.clickable:focus-visible {
+  outline: none;
+  background: var(--bg-hover);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.table-wrap table thead th:first-child, .table-wrap tbody td:first-child { padding-left: 17px; }
+.table-wrap table thead th:last-child, .table-wrap tbody td:last-child { padding-right: 17px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.strong { font-weight: 600; }
+tr.sum td { border-top: 1px solid var(--border); font-weight: 640; }
+tr.sum.grand td { border-top: 2px solid var(--border-strong); font-size: 15px; }
+
+.money.income { color: var(--income); }
+.money.expense { color: var(--expense); }
+
+.tag {
+  display: inline-block; padding: 2px 7px; border-radius: 3px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.7px;
+  text-transform: uppercase;
+  font-family: var(--font-display); font-variation-settings: "wdth" 90;
+  background: var(--bg-hover); color: var(--text-muted); white-space: nowrap;
+  border: 1px solid transparent;
+}
+.tag.draft { background: var(--bg-raised); color: var(--text-muted); }
+.tag.sent { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+.tag.paid { background: color-mix(in srgb, var(--income) 15%, transparent); color: var(--income); }
+.tag.partial { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+.tag.overdue { background: color-mix(in srgb, var(--expense) 15%, transparent); color: var(--expense); }
+/* Die mittlere Schriftstufe, nicht die blasseste: auf der hellen Marke
+   käme die blasse unter 4,5:1. Dass die Sache erledigt ist, sagt hier
+   ohnehin der Durchstrich und nicht die Helligkeit. */
+.tag.cancelled { background: var(--bg-raised); color: var(--text-muted); text-decoration: line-through; }
+.tag.open { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+
+.muted { color: var(--text-muted); }
+.faint { color: var(--text-faint); }
+.small { font-size: 12px; }
+.mono { font-variant-numeric: tabular-nums; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+
+/* ---------------------------------------------------------------- Hinweise */
+
+.note {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: 12px 15px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 13px; margin-bottom: 14px; color: var(--text-muted); line-height: 1.55;
+}
+/* Ein Hinweis, der zum Handeln auffordert, trägt den Knopf gleich bei sich. */
+.note.action {
+  display: flex; align-items: center; gap: 16px;
+  border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); color: var(--text);
+}
+.note.action span { flex: 1; }
+.note.warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); color: var(--text-muted); }
+.note.error { border-color: var(--expense); background: color-mix(in srgb, var(--expense) 10%, transparent); color: var(--text-muted); }
+.note ul { margin: 6px 0 0; padding-left: 18px; }
+.note li { margin: 2px 0; }
+
+.empty { text-align: center; padding: 48px 20px; color: var(--text-faint); }
+.empty-title { font-size: 15px; color: var(--text-muted); margin-bottom: 6px; font-weight: 560; }
+
+/* ---------------------------------------------------------------- Diagramm */
+
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding-top: 10px; }
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+.chart-bars { display: flex; gap: 2px; align-items: flex-end; height: 100%; width: 100%; justify-content: center; }
+.chart-bar { width: 44%; border-radius: 3px 3px 0 0; min-height: 2px; transition: opacity 0.12s; }
+.chart-bar.income { background: var(--income); }
+.chart-bar.expense { background: var(--expense); }
+.chart-bar:hover { opacity: 0.75; }
+.chart-label { font-size: 10.5px; color: var(--text-faint); }
+
+/* ---------------------------------------------------------------- Dialog */
+
+.overlay {
+  position: fixed; inset: 0; background: #0a0d0ed9;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px; overflow-y: auto; z-index: 50;
+}
+.modal {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  width: 100%; max-width: 680px; margin: auto 0;
+}
+.modal.wide { max-width: 1000px; }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 16px; font-weight: 620; margin: 0; }
+.modal-body { padding: 20px 22px; }
+.modal-foot {
+  display: flex; justify-content: flex-end; gap: 9px;
+  padding: 14px 22px; border-top: 1px solid var(--border);
+  position: sticky; bottom: 0; background: var(--bg-panel); border-radius: 0 0 var(--radius) var(--radius);
+}
+.close-x { border: none; background: none; color: var(--text-faint); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px 8px; border-radius: 6px; }
+.close-x:hover { background: var(--bg-hover); color: var(--text); }
+
+/* ---------------------------------------------------------------- Toast */
+
+.toasts { position: fixed; bottom: 22px; right: 22px; display: flex; flex-direction: column; gap: 9px; z-index: 100; }
+.toast {
+  background: var(--bg-panel); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); padding: 11px 16px; box-shadow: var(--shadow);
+  font-size: 13px; max-width: 420px; animation: slide-in 0.16s ease-out;
+}
+.toast.error { border-left-color: var(--expense); }
+.toast.success { border-left-color: var(--income); }
+@keyframes slide-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+/* ---------------------------------------------------------------- Filterleiste */
+
+.filters { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+.filters .field { margin: 0; min-width: 130px; }
+.filters .field.grow { flex: 1; min-width: 220px; }
+
+/* ---------------------------------------------------------------- Positionen */
+
+.pos-table input, .pos-table select { padding: 6px 8px; }
+.pos-table td { padding: 6px 6px; vertical-align: top; }
+.pos-table td:first-child { padding-left: 0; }
+.pos-table td:last-child { padding-right: 0; }
+.pos-row-remove { color: var(--text-faint); }
+
+.kz-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.kz-row:last-child { border-bottom: none; }
+.kz-label { font-size: 13px; color: var(--text-muted); }
+.kz-code { display: inline-block; min-width: 34px; font-weight: 640; color: var(--accent); font-variant-numeric: tabular-nums; }
+.kz-value { font-variant-numeric: tabular-nums; font-weight: 580; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- Gestaltung */
+
+.design-layout {
+  display: grid;
+  grid-template-columns: minmax(380px, 460px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1240px) { .design-layout { grid-template-columns: 1fr; } }
+
+.design-controls .panel { margin-bottom: 14px; }
+
+.design-preview {
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px 18px;
+}
+.design-preview-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+
+.doc-stage {
+  background: var(--bg-raised);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+}
+.doc-scaler { flex-shrink: 0; overflow: hidden; }
+.doc-frame {
+  width: 210mm;
+  height: 297mm;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 6px 22px #0007;
+  display: block;
+}
+
+/* Vorschau im Dialog: gleiche Seite, nur kleiner gerechnet. */
+.doc-preview { background: var(--bg-raised); border-radius: var(--radius-sm); padding: 14px; overflow: auto; max-height: 68vh; }
+.doc-preview .doc-frame { transform: scale(0.72); transform-origin: top left; margin-bottom: -84mm; }
+
+input[type="range"].zoom-range { width: 130px; }
+
+.preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.preset-card {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 11px 6px; cursor: pointer;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-muted);
+  font-size: 12px; transition: border-color 0.12s, color 0.12s;
+}
+.preset-card:hover { border-color: var(--border-strong); color: var(--text); }
+.preset-card.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.preset-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ffffff22; }
+.preset-dot[data-p="klar"] { background: #1f6feb; }
+.preset-dot[data-p="kontrast"] { background: #0f3d63; }
+.preset-dot[data-p="klassisch"] { background: #4a3b2a; }
+.preset-dot[data-p="werkstatt"] { background: #1b7f5a; }
+.preset-dot[data-p="reduziert"] { background: #2b2b2b; }
+.preset-name { font-weight: 550; }
+
+.color-row { display: flex; gap: 7px; align-items: center; }
+.color-input {
+  width: 42px; height: 34px; padding: 2px; cursor: pointer;
+  background: var(--bg-elevated); border: 1px solid var(--border-control); border-radius: var(--radius-sm);
+}
+.color-text { flex: 1; font-variant-numeric: tabular-nums; text-transform: lowercase; }
+
+.range-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.range-value { font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+input[type="range"] { accent-color: var(--accent); width: 100%; cursor: pointer; }
+
+/* ---------------------------------------------------------------- Auswertung */
+
+/* Gestapelter Umsatzbalken: die Bereiche sitzen aufeinander. */
+.chart-stack {
+  width: 44%;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+}
+.chart-stack > div:first-child { border-radius: 0; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+
+.share-bar { height: 7px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden; }
+.share-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+
+/* Eine Zeile je Geschäftsbereich in den Einstellungen. */
+.segment-row {
+  display: grid;
+  grid-template-columns: 46px minmax(120px, 1fr) 150px minmax(120px, 1.4fr) 36px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* ---------------------------------------------------------------- Wiederkehrendes */
+
+/*
+  Jede fällige Vorlage ist ein eigener Block mit Kopfzeile und Terminliste.
+  Die Trennlinie zwischen den Blöcken ersetzt eine weitere Kartenebene: zwei
+  ineinander verschachtelte Karten wirken schnell unruhig.
+*/
+.due-group { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.due-group:last-of-type { border-bottom: none; margin-bottom: 8px; }
+
+.due-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.due-head .label {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  font-variation-settings: "wdth" 90; color: var(--text);
+}
+
+/* ---------------------------------------------------------------- Fristen */
+
+.kind-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.kind-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border-radius: 20px; cursor: pointer;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-faint); font-size: 12.5px;
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease), opacity 0.15s var(--ease);
+  opacity: 0.55;
+}
+.kind-chip:hover { color: var(--text); opacity: 0.85; }
+.kind-chip.active { opacity: 1; color: var(--text); border-color: var(--border-strong); }
+
+.kind-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--chip, var(--text-faint));
+  display: inline-block; flex-shrink: 0;
+}
+
+/*
+  Ein Termin ist eine Zeile mit Datumsblock links, Sache in der Mitte, Betrag
+  und Abstand rechts. Die Dringlichkeit steht am linken Rand als Balken, damit
+  sie nicht allein an der Farbe der Schrift hängt.
+*/
+.deadline-list { display: flex; flex-direction: column; }
+
+.deadline {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 14px 12px 12px;
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  transition: background 0.14s var(--ease);
+}
+.deadline:hover { background: var(--bg-hover); }
+.deadline.overdue { border-left-color: var(--expense); background: color-mix(in srgb, var(--expense) 8%, transparent); }
+.deadline.today { border-left-color: var(--warn); }
+.deadline.soon { border-left-color: var(--accent); }
+.deadline.later { border-left-color: var(--border); }
+
+.deadline-date {
+  width: 46px; flex-shrink: 0; text-align: center;
+  font-family: var(--font-display); font-variation-settings: "wdth" 90;
+}
+.deadline-date .day {
+  font-size: 21px; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--text);
+}
+.deadline-date .month {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-faint); margin-top: 3px;
+}
+.deadline.overdue .deadline-date .day { color: var(--expense); }
+
+.deadline-body { flex: 1; min-width: 0; }
+.deadline-title {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: 13.5px;
+}
+.deadline-detail { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+.deadline-note { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; font-style: italic; }
+
+.deadline-right { text-align: right; flex-shrink: 0; }
+.deadline-amount { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13.5px; }
+.deadline-when { font-size: 11.5px; color: var(--text-faint); margin-top: 2px; }
+.deadline.overdue .deadline-when { color: var(--expense); font-weight: 600; }
+
+/* ---------------------------------------------------------------- Mahnung */
+
+.charge-options {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px 5px;
+  margin-bottom: 14px;
+}
+.charge-options .check:last-child { margin-bottom: 8px; }
+
+.btn.small.danger { border-color: color-mix(in srgb, var(--expense) 34%, transparent); }
+
+/* ---------------------------------------------------------------- Kontoauszug */
+
+.bank-list { display: flex; flex-direction: column; }
+
+.bank-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 14px 12px 10px;
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+}
+.bank-row + .bank-row { border-top: 1px solid var(--border-soft, var(--border)); }
+.bank-row:hover { background: var(--bg-hover); }
+.bank-row.is-selected { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.bank-row.is-duplicate { opacity: 0.55; }
+
+.bank-check { width: 60px; flex-shrink: 0; padding-top: 4px; }
+.bank-check .check { margin: 0; }
+
+.bank-date {
+  width: 42px; flex-shrink: 0; text-align: center; padding-top: 1px;
+  font-family: var(--font-display); font-variation-settings: "wdth" 90;
+}
+.bank-date .day {
+  font-size: 19px; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.bank-date .month {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-faint); margin-top: 3px;
+}
+
+.bank-body { flex: 1; min-width: 0; }
+.bank-party { font-weight: 600; font-size: 13.5px; }
+.bank-purpose {
+  font-size: 12px; color: var(--text-muted); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.bank-suggestion { margin-top: 8px; }
+
+.bank-pick, .bank-match { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Eine Rücklastschrift ist keine gewöhnliche Zeile: sie macht eine Forderung
+   wieder offen. Der Streifen links hebt sie heraus, ohne dass Farbe die
+   einzige Auskunft wäre: daneben steht immer die Marke mit dem Wort. */
+.bank-return { display: flex; flex-direction: column; gap: 5px;
+  border-left: 2px solid var(--expense); padding-left: 10px; }
+.bank-pick select { max-width: 230px; padding: 5px 8px; font-size: 12.5px; }
+
+.bank-amount { text-align: right; flex-shrink: 0; min-width: 110px; padding-top: 1px; }
+.bank-amount .amount { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px; }
+.bank-amount .amount.good { color: var(--income); }
+.bank-amount .amount.bad { color: var(--expense); }
+
+.bank-actions { flex-shrink: 0; width: 76px; text-align: right; padding-top: 1px; }
+
+/* Woher der Vorschlag kommt: gedämpft, aber lesbar. Wer ihn selbst gesetzt
+   hat, sieht das am geänderten Text, nicht nur an der Farbe. */
+.hint-source { color: var(--accent); opacity: 0.75; }
+
+.link-button {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--accent); font: inherit; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-button.small { font-size: 11.5px; }
+.link-button:hover { color: var(--text); }
+
+.bank-commit {
+  position: sticky; bottom: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-top: 18px; padding: 14px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 -6px 20px #00000066;
+}
+.bank-commit .strong { font-weight: 600; font-size: 14px; }
+
+/* ---------------------------------------------------------------- Profile */
+
+.profile-switch { padding: 0 12px 14px; }
+
+.profile-button {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text); font: inherit; font-size: 12.5px; cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+}
+.profile-button:hover { border-color: var(--accent); background: var(--bg-hover); }
+
+.profile-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--income); flex-shrink: 0;
+}
+.profile-name {
+  flex: 1; min-width: 0; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.profile-hint { color: var(--text-faint); font-size: 11px; flex-shrink: 0; }
+
+.profile-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+
+.profile-entry {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 11px 14px; width: 100%; text-align: left;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text); font: inherit; cursor: pointer;
+  transition: border-color 0.15s var(--ease);
+}
+.profile-entry:hover:not(:disabled) { border-color: var(--accent); }
+.profile-entry.active { border-left: 3px solid var(--income); cursor: default; }
+
+.profile-entry-name { font-weight: 600; font-size: 13.5px; }
+.profile-entry-dir {
+  font-size: 11.5px; color: var(--text-faint); margin-top: 2px;
+  max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+div.strong { font-weight: 600; }
+
+/* ---------------------------------------------------------------- Zeiten */
+
+.clock-row { display: flex; align-items: flex-end; gap: 14px; }
+.clock-row .field { flex: 1; margin-bottom: 0; }
+.clock-row .field:first-child { max-width: 260px; }
+.clock-button { flex-shrink: 0; }
+
+.clock-running { display: flex; align-items: center; gap: 16px; }
+
+.clock-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--income); flex-shrink: 0;
+  animation: pulse 2s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.82); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clock-dot { animation: none; }
+}
+
+.clock-time {
+  font-family: var(--font-display); font-variation-settings: "wdth" 90;
+  font-size: 34px; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--income);
+  min-width: 132px;
+}
+.clock-what { flex: 1; min-width: 0; }
+
+/* ---------------------------------------------------------------- Reise */
+
+.travel-days {
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px; margin-top: 4px;
+}
+.travel-day { display: flex; align-items: center; gap: 14px; }
+.travel-date {
+  width: 96px; flex-shrink: 0; font-size: 12.5px;
+  font-variant-numeric: tabular-nums; color: var(--text-muted);
+}
+.travel-day select { width: 190px; padding: 4px 8px; font-size: 12.5px; }
+.travel-meals { display: flex; gap: 12px; flex: 1; }
+.travel-meals .check { margin: 0; font-size: 12px; }
+.travel-amount {
+  width: 80px; text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 600; font-size: 13px;
+}
+
+/* ---------------------------------------------------------------- Sphären */
+
+.limit-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+.limit-value {
+  font-family: var(--font-display); font-variation-settings: "wdth" 90;
+  font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.limit-value.muted { color: var(--text-muted); font-size: 17px; }
+
+.limit-bar {
+  display: flex; height: 12px; border-radius: 6px; overflow: hidden;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+}
+.limit-fill { background: var(--accent); transition: width 0.4s var(--ease); }
+.limit-fill.close { background: var(--warn); }
+.limit-fill.over { background: var(--expense); }
+.limit-over { background: color-mix(in srgb, var(--expense) 45%, transparent); }
+.limit-legend {
+  display: flex; justify-content: space-between;
+  font-size: 12px; margin-top: 6px;
+}
+
+.sphere-list { display: flex; flex-direction: column; }
+.sphere-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 13px 4px;
+}
+.sphere-row + .sphere-row { border-top: 1px solid var(--border); }
+.sphere-mark { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+.sphere-body { flex: 1; min-width: 0; }
+.sphere-name { font-weight: 600; font-size: 13.5px; }
+.sphere-bars { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+.sphere-bar { height: 6px; border-radius: 3px; min-width: 2px; transition: width 0.4s var(--ease); }
+.sphere-bar.income { background: var(--income); }
+.sphere-bar.expense { background: var(--expense); }
+
+.sphere-numbers {
+  text-align: right; flex-shrink: 0; min-width: 130px;
+  font-variant-numeric: tabular-nums; font-size: 13px; line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- Zuwendungen */
+
+.donation-list {
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 10px;
+}
+.donation-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 5px 4px; cursor: pointer; font-size: 12.5px;
+}
+.donation-row:hover { background: var(--bg-hover); border-radius: 4px; }
+.donation-date { width: 92px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.donation-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.donation-amount { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* Eine Rücklage, deren Frist abgelaufen ist. */
+tr.overdue-row td { background: color-mix(in srgb, var(--expense) 8%, transparent); }
+tr.overdue-row td:first-child { box-shadow: inset 2px 0 0 var(--expense); }
+
+
+/* ----------------------------------------------- Verschlüsselung
+   Güteanzeige und Wiederherstellungsschlüssel. Stehen hier und nicht nur
+   in unlock.css, weil die Einstellungen dieselben Bausteine zeigen: eine
+   zweite Fassung der Regeln liefe irgendwann auseinander. */
+
+/* Güteanzeige: vier Stufen, kein Prozentwert. Eine Zahl täuschte eine
+   Genauigkeit vor, die es bei Passwörtern nicht gibt. */
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: -6px;
+  margin-bottom: 14px;
+}
+
+.strength-track {
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-hover);
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width 180ms ease, background-color 180ms ease;
+}
+
+.strength-label { font-size: 11.5px; color: var(--text-faint); white-space: nowrap; }
+
+.strength[data-level="weak"] .strength-fill { width: 25%; background: var(--expense); }
+.strength[data-level="fair"]   .strength-fill { width: 55%; background: var(--warn); }
+.strength[data-level="good"]   .strength-fill { width: 80%; background: var(--accent); }
+.strength[data-level="strong"] .strength-fill { width: 100%; background: var(--income); }
+
+/* Der Wiederherstellungsschlüssel. Groß, monospace, nicht markierbar
+   verstecken: er soll abgeschrieben und ausgedruckt werden können. */
+.recovery-key {
+  font-family: var(--font-mono, "Cascadia Mono", Consolas, monospace);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+  text-align: center;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 16px 12px;
+  color: var(--text);
+  user-select: all;
+  word-break: break-all;
+}
