@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>NestEgg – Oberflächenvorschau</title>
+<link rel="stylesheet" href="../src/renderer/styles/app.css">
+<style>
+  /* Kleiner Hinweisstreifen, damit die Vorschau nicht mit der App verwechselt wird. */
+  .preview-flag {
+    position: fixed; top: 0; right: 0; z-index: 200;
+    background: #e8b446; color: #1a1205; font-size: 11px; font-weight: 700;
+    padding: 3px 12px; border-radius: 0 0 0 8px; letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+  <div class="preview-flag">VORSCHAU MIT BEISPIELDATEN</div>
+  <!-- Dieselbe Hülle wie die App, damit die Vorschau nicht schöner ist als das Original. -->
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-name">NestEgg</span>
+        <span class="brand-year" id="brand-year"></span>
+      </div>
+      <div class="profile-switch" id="profile-switch"></div>
+      <nav class="nav" id="nav" aria-label="Bereiche"></nav>
+      <div class="sidebar-foot" id="sidebar-foot"></div>
+    </aside>
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <div id="modal-root"></div>
+
+  <script src="mock.js"></script>
+  <script src="../src/renderer/scripts/ui.js"></script>
+  <script src="../src/renderer/scripts/views/document-editor.js"></script>
+  <script src="../src/renderer/scripts/views/dunning.js"></script>
+  <script src="../src/renderer/scripts/views/profiles.js"></script>
+  <script src="../src/renderer/scripts/views/einvoice.js"></script>
+  <script src="../src/renderer/scripts/views/kanzlei.js"></script>
+  <script src="../src/renderer/scripts/views/travel.js"></script>
+  <script src="../src/renderer/scripts/views/dashboard.js"></script>
+  <script src="../src/renderer/scripts/views/entries.js"></script>
+  <script src="../src/renderer/scripts/views/invoices.js"></script>
+  <script src="../src/renderer/scripts/views/offers.js"></script>
+  <script src="../src/renderer/scripts/views/customers.js"></script>
+  <script src="../src/renderer/scripts/views/projects.js"></script>
+  <script src="../src/renderer/scripts/views/time.js"></script>
+  <script src="../src/renderer/scripts/views/recurring.js"></script>
+  <script src="../src/renderer/scripts/views/bank.js"></script>
+  <script src="../src/renderer/scripts/views/assets.js"></script>
+  <script src="../src/renderer/scripts/views/analytics.js"></script>
+  <script src="../src/renderer/scripts/views/forecast.js"></script>
+  <script src="../src/renderer/scripts/views/deadlines.js"></script>
+  <script src="../src/renderer/scripts/views/euer.js"></script>
+  <script src="../src/renderer/scripts/views/spheres.js"></script>
+  <script src="../src/renderer/scripts/views/members.js"></script>
+  <script src="../src/renderer/scripts/views/donations.js"></script>
+  <script src="../src/renderer/scripts/views/reserves.js"></script>
+  <script src="../src/renderer/scripts/views/vat.js"></script>
+  <script src="../src/renderer/scripts/views/design.js"></script>
+  <script src="../src/renderer/scripts/views/settings.js"></script>
+  <script src="../src/renderer/scripts/app.js"></script>
+</body>
+</html>
