@@ -17,6 +17,32 @@ window.Views.settings = function settingsView(app) {
     if (message) UI.toast(message, 'success');
   }
 
+  /**
+   * A file picker with the chosen path beside it.
+   *
+   * The picker stores the path itself, so nothing here needs saving. What it
+   * must not do is refresh: the panel keeps the typed values in a copy that
+   * only the save button writes back, and re-rendering would drop every field
+   * the user has filled in but not saved yet. So the two labels are swapped in
+   * place.
+   */
+  function filePicker(pick, current, texts, onPicked) {
+    const path = h('span', { class: 'small faint' }, current || texts.empty);
+    const button = h('button', {
+      class: 'btn small',
+      onClick: async () => {
+        const file = UI.unwrap(await pick(), texts.subject);
+        if (!file) return;
+        onPicked(file);
+        path.textContent = file;
+        button.textContent = texts.replace;
+        UI.toast(texts.done, 'success');
+      }
+    }, current ? texts.replace : texts.choose);
+
+    return [button, path];
+  }
+
   function render() {
     UI.clear(root);
     const s = app.settings;
@@ -79,16 +105,13 @@ window.Views.settings = function settingsView(app) {
         }))
       ]),
       h('div', { style: { display: 'flex', gap: '10px', alignItems: 'center' } }, [
-        h('button', {
-          class: 'btn small',
-          onClick: async () => {
-            const file = UI.unwrap(await window.kontor.settings.chooseLogo(), 'Logo');
-            if (file) { UI.toast('Logo gesetzt.'); app.refresh(); }
-          }
-        }, s.company.logoPath ? 'Logo ersetzen' : 'Logo wählen'),
-        s.company.logoPath
-          ? h('span', { class: 'small faint' }, s.company.logoPath)
-          : h('span', { class: 'small faint' }, 'Kein Logo hinterlegt'),
+        ...filePicker(() => window.kontor.settings.chooseLogo(), company.logoPath, {
+          subject: 'Logo',
+          choose: 'Logo wählen',
+          replace: 'Logo ersetzen',
+          empty: 'Kein Logo hinterlegt',
+          done: 'Logo gesetzt.'
+        }, (file) => { company.logoPath = file; s.company.logoPath = file; }),
         h('div', { style: { flex: '1' } }),
         h('button', {
           class: 'btn primary',
@@ -612,6 +635,18 @@ window.Views.settings = function settingsView(app) {
     if (!company.signature) company.signature = { imagePath: '', text: '', height: 16 };
     const sig = company.signature;
 
+    // Sichtbar, sobald ein Bild hinterlegt ist, auch wenn es gerade erst
+    // gewählt wurde. Das Entfernen schreibt die Firmendaten mit, weil der
+    // leere Pfad sonst nur in der Ansicht stünde.
+    const removeSignature = h('button', {
+      class: 'btn small ghost danger',
+      hidden: !sig.imagePath,
+      onClick: async () => {
+        sig.imagePath = '';
+        await save({ company }, 'Bild entfernt.');
+      }
+    }, 'Bild entfernen');
+
     return h('div', [
       h('div', { class: 'field-group-title' }, 'Unterschrift'),
       h('div', { class: 'grid grid-3' }, [
@@ -630,26 +665,15 @@ window.Views.settings = function settingsView(app) {
         }), 'Millimeter')
       ]),
       h('div', { style: { display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' } }, [
-        h('button', {
-          class: 'btn small',
-          onClick: async () => {
-            const datei = UI.unwrap(await window.kontor.settings.chooseSignature(), 'Unterschrift');
-            if (datei) { UI.toast('Unterschrift gesetzt.'); app.refresh(); }
-          }
-        }, sig.imagePath ? 'Bild ersetzen' : 'Bild wählen'),
-        sig.imagePath
-          ? h('span', { class: 'small faint' }, sig.imagePath)
-          : h('span', { class: 'small faint' }, 'Kein Bild, der Name wird in Schreibschrift gesetzt'),
-        sig.imagePath
-          ? h('button', {
-              class: 'btn small ghost danger',
-              onClick: async () => {
-                sig.imagePath = '';
-                await save({ company }, 'Bild entfernt.');
-              }
-            }, 'Bild entfernen')
-          : null
-      ].filter(Boolean))
+        ...filePicker(() => window.kontor.settings.chooseSignature(), sig.imagePath, {
+          subject: 'Unterschrift',
+          choose: 'Bild wählen',
+          replace: 'Bild ersetzen',
+          empty: 'Kein Bild, der Name wird in Schreibschrift gesetzt',
+          done: 'Unterschrift gesetzt.'
+        }, (file) => { sig.imagePath = file; removeSignature.hidden = false; }),
+        removeSignature
+      ])
     ]);
   }
 
