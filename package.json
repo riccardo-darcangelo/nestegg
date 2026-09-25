@@ -44,7 +44,8 @@
     "smoke:pdf": "npm run build && electron out/tools/pdf-smoke.js",
     "preview": "npm run build && node out/tools/serve.js",
     "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win nsis"
+    "dist:win": "npm run build && electron-builder --win nsis",
+    "check:pdfa": "node tools/pdfa-check.js"
   },
   "dependencies": {
     "exceljs": "^4.4.0",

@@ -37,6 +37,10 @@ npm run smoke         # startet die App und klickt jede Ansicht durch
 npm run smoke:a11y    # Kontrast, Beschriftungen, Tastatur, Dialoge
 npm run smoke:lock    # Verschlüsselung über mehrere Programmläufe
 npm run preview       # die Oberfläche im Browser, ohne Electron
+
+node tools/pdfa-check.js <datei.pdf>   # sieht ein erzeugtes PDF auf die
+                                       # PDF/A-Punkte durch, die in der Praxis
+                                       # schiefgehen
 ```
 
 Vor einem Pull Request sollten `npm test` und `npm run typecheck` durchlaufen.

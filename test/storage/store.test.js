@@ -279,6 +279,21 @@ test('Die PDF/A- und ZUGFeRD-Metadaten stehen im Dokument', async () => {
   assert.ok(text.includes('/Metadata'));
 });
 
+/**
+ * ISO 19005 verlangt eine Dateikennung im Trailer, und Chromium schreibt
+ * keine. Das war der einzige harte PDF/A-Verstoß, den ein Validator an einem
+ * sonst sauberen Dokument gemeldet hat.
+ */
+test('Das Dokument trägt eine Dateikennung im Trailer', async () => {
+  const result = await pdfa.embedInvoiceXml(await minimalPdf(), '<xml/>', { title: 'Test' });
+  const text = Buffer.from(result).toString('latin1');
+
+  const id = /\/ID\s*\[\s*<([0-9A-F]+)>\s*<([0-9A-F]+)>\s*\]/.exec(text);
+  assert.ok(id, 'die Dateikennung fehlt');
+  assert.equal(id[1].length, 32, 'die Kennung besteht aus 16 Bytes');
+  assert.equal(id[1], id[2], 'bei einer neuen Datei sind beide Hälften gleich');
+});
+
 test('Das XMP-Gerüst maskiert Sonderzeichen aus den Firmendaten', () => {
   const xmp = pdfa.buildXmp({
     title: 'Rechnung <RE-1>',

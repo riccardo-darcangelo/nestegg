@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo D'Arcangelo
-import { PDFDocument, PDFName, PDFString, AFRelationship } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString, PDFHexString, AFRelationship } from 'pdf-lib';
+import crypto from 'node:crypto';
 
 import { srgbProfile } from './icc';
 import { escapeText } from './xml';
@@ -132,6 +133,20 @@ function attachOutputIntent(doc: PDFDocument): void {
   doc.catalog.set(PDFName.of('OutputIntents'), doc.context.obj([outputIntent]));
 }
 
+/**
+ * The file identifier in the trailer.
+ *
+ * ISO 19005 requires it, and Chromium writes no trailer ID at all, which is
+ * the one hard PDF/A violation its output otherwise does not have. Both halves
+ * are identical here because the file is new: the first identifies the
+ * original, the second the current revision, and for a first version they are
+ * the same.
+ */
+function attachFileId(doc: PDFDocument): void {
+  const id = PDFHexString.of(crypto.randomBytes(16).toString('hex').toUpperCase());
+  doc.context.trailerInfo.ID = doc.context.obj([id, id]);
+}
+
 /** Embeds the invoice XML into a rendered PDF and returns the new bytes. */
 export async function embedInvoiceXml(
   pdfBytes: Uint8Array,
@@ -167,6 +182,7 @@ export async function embedInvoiceXml(
 
   attachMetadata(doc, buildXmp({ title, author, subject, createdAt: now, conformanceLevel, attachmentName }));
   attachOutputIntent(doc);
+  attachFileId(doc);
 
   return doc.save({ useObjectStreams: false });
 }
