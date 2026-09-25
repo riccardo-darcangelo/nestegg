@@ -1,7 +1,7 @@
 {
   "name": "nestegg",
   "productName": "NestEgg",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Offline-Buchhaltung für Einzelunternehmer und kleine Vereine: EÜR, Umsatzsteuer, E-Rechnung, SEPA und Vereinssphären. Alle Daten bleiben lokal.",
   "keywords": [
     "buchhaltung",
