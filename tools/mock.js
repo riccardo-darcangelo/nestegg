@@ -402,6 +402,23 @@
       thresholds: () => after(() => ok(clone(fixture.thresholds)))
     },
 
+    // In der Vorschau liegt der Bestand offen: der Abschnitt zeigt dann seine
+    // Warnung, und mehr als das Aussehen ist hier nicht zu prüfen.
+    security: {
+      state: () => after(() => ok({ encrypted: false })),
+      strength: (wert) => after(() => ok(
+        String(wert || '').length >= 12
+          ? { level: 3, label: 'Stark' }
+          : { level: 1, label: 'Zu kurz' }
+      )),
+      enable: notInPreview('Die Verschlüsselung'),
+      disable: notInPreview('Das Aufheben der Verschlüsselung'),
+      changePassword: notInPreview('Der Passwortwechsel'),
+      newRecoveryKey: notInPreview('Ein neuer Wiederherstellungsschlüssel'),
+      printRecoveryKey: notInPreview('Das Ausdrucken'),
+      setRemember: notInPreview('Das Merken des Passworts')
+    },
+
     settings: {
       update: (patch) => after(() => {
         fixture.data.settings = { ...fixture.data.settings, ...patch };
@@ -409,7 +426,11 @@
         return ok(fixture.data.settings);
       }),
       chooseDataDir: notInPreview('Der Ordnerwechsel'),
-      chooseLogo: notInPreview('Die Logoauswahl'),
+      // Einen Dateidialog gibt es in der Vorschau nicht, einen gewählten Pfad
+      // schon: nur so lässt sich prüfen, dass die Auswahl die daneben
+      // eingetippten Felder stehen lässt.
+      chooseLogo: () => after(() => ok('C:/Beispiel/logo.png')),
+      chooseSignature: () => after(() => ok('C:/Beispiel/unterschrift.png')),
       openDataDir: notInPreview('Das Öffnen des Ordners'),
       backup: notInPreview('Die Sicherung')
     },
