@@ -316,6 +316,17 @@ export function validateInvoice(
     errors.push('Für diese Umsätze brauchst du selbst eine Umsatzsteuer-Identifikationsnummer.');
   }
 
+  // A service date years away from the invoice date is a mistyped year, and
+  // it decides the VAT period. Only a warning: a prepayment invoice bills a
+  // service that lies ahead, which is perfectly correct.
+  const serviceDate = invoice.deliveryDate ?? invoice.deliveryPeriod?.from;
+  if (serviceDate && invoice.issueDate) {
+    const yearsApart = Math.abs(Number(serviceDate.slice(0, 4)) - Number(invoice.issueDate.slice(0, 4)));
+    if (yearsApart > 1) {
+      warnings.push(`Der Leistungszeitpunkt ${serviceDate} liegt Jahre vom Rechnungsdatum entfernt. Bitte die Jahreszahl prüfen.`);
+    }
+  }
+
   if (totalsResult.grossTotal <= 0) warnings.push('Die Rechnungssumme ist null oder negativ.');
   if (!invoice.dueDate) warnings.push('Kein Fälligkeitsdatum gesetzt. Für die E-Rechnung ist ein Zahlungsziel empfehlenswert.');
   if (!company?.iban) warnings.push('Ohne IBAN fehlen in der E-Rechnung die Zahlungsdaten.');

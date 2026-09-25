@@ -97,11 +97,17 @@ function lineItem(line: CodedLine, index: number): XmlNode {
   ]);
 }
 
-/** The code that names why no tax is due, where the category demands one. */
+/**
+ * The code that names why no tax is due, where the category demands one.
+ *
+ * The small business exemption of UStG 19 has no code of its own: the VATEX
+ * list covers the exemptions of the VAT directive, not the national threshold
+ * schemes. It is carried by the plain text reason instead, which is what
+ * BR-E-10 accepts.
+ */
 function exemptionCode(group: VatGroupDetail): string | null {
   if (group.categoryCode === 'AE') return 'VATEX-EU-AE';
   if (group.categoryCode === 'K') return 'VATEX-EU-IC';
-  if (group.vatKey === 'kleinunternehmer') return 'VATEX-EU-D';
   return null;
 }
 

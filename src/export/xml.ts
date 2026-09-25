@@ -82,11 +82,11 @@ export function render(node: XmlChild, indent = 0): string {
   const attrs = renderAttrs(node.attrs);
   const children = childList(node.children);
 
-  if (!children.length) {
-    // An empty mandatory element is only written when it was asked for
-    // explicitly, by passing an empty string as its content.
-    return node.children === '' ? `${pad}<${node.name}${attrs}/>` : '';
-  }
+  // An element without content is left out entirely. EN 16931 forbids empty
+  // elements (PEPPOL-EN16931-R008), and a field that happens to be blank looks
+  // exactly like one deliberately emptied, so there is no way to tell them
+  // apart and no reason to try.
+  if (!children.length) return '';
 
   const [only] = children;
   if (children.length === 1 && !(only instanceof XmlNode) && !Array.isArray(only)) {

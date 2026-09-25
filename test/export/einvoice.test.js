@@ -61,11 +61,47 @@ test('XML maskiert Sonderzeichen in Text und Attributen', () => {
   assert.ok(out.includes('t="x&quot;y"'));
 });
 
-test('Leere Elemente fallen weg, ausser sie sind ausdrücklich leer', () => {
-  const out = document(el('root', [el('leer', null), el('absichtlich', ''), el('voll', 'x')]));
+/**
+ * Ein leeres Element hat in einer E-Rechnung nichts zu suchen:
+ * PEPPOL-EN16931-R008 verbietet es, und ein Datenfeld, das leer geblieben ist,
+ * sieht genauso aus wie ein absichtlich geleertes. Deshalb fällt beides weg.
+ */
+test('Leere Elemente fallen weg', () => {
+  const out = document(el('root', [el('leer', null), el('leerString', ''), el('voll', 'x')]));
   assert.ok(!out.includes('<leer'));
-  assert.ok(out.includes('<absichtlich/>'));
+  assert.ok(!out.includes('<leerString'));
   assert.ok(out.includes('<voll>x</voll>'));
+});
+
+/**
+ * Ein Validator hat genau das gemeldet: <ram:LineTwo/> stand im Dokument,
+ * weil die zweite Adresszeile des Kunden leer war. PEPPOL-EN16931-R008
+ * verbietet leere Elemente, und ein leeres Datenfeld darf keines erzeugen.
+ */
+test('Das erzeugte XML enthält kein leeres Element', () => {
+  const leer = (xml) => [...xml.matchAll(/<([\w:]+)([^>]*)\/>/g)].map((m) => m[1]);
+
+  const kunde = { ...buyer, street2: '', email: '', phone: '', contactName: '' };
+  assert.deepEqual(leer(cii.build(invoice, seller, kunde, {})), []);
+  assert.deepEqual(leer(ubl.build(invoice, seller, kunde, {})), []);
+});
+
+/**
+ * Für die Kleinunternehmerregelung gibt es keinen VATEX-Code: die Liste deckt
+ * die Befreiungen der Mehrwertsteuerrichtlinie ab, nicht die nationalen
+ * Schwellenregelungen. VATEX-EU-D stand hier einmal und bedeutet den
+ * innergemeinschaftlichen Erwerb eines Gebrauchtfahrzeugs.
+ */
+test('Der Kleinunternehmer bekommt einen Befreiungstext ohne Code', () => {
+  const klein = {
+    ...invoice,
+    items: [{ name: 'Leistung', quantity: 1, unit: 'C62', unitPriceNet: 10000, vatRate: 0, vatKey: 'kleinunternehmer', discountPercent: 0 }]
+  };
+  const xml = cii.build(klein, seller, buyer, {});
+
+  assert.ok(xml.includes('<ram:CategoryCode>E</ram:CategoryCode>'));
+  assert.ok(/<ram:ExemptionReason>[^<]+<\/ram:ExemptionReason>/.test(xml), 'der Befreiungstext fehlt');
+  assert.ok(!xml.includes('VATEX'), 'für §19 UStG gibt es keinen VATEX-Code');
 });
 
 /* ------------------------------------------------------------------ CII */
