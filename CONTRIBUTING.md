@@ -47,6 +47,24 @@ Vor einem Pull Request sollten `npm test` und `npm run typecheck` durchlaufen.
 Hast du an der Oberfläche gearbeitet, nimm `npm run smoke` dazu; hast du an der
 Verschlüsselung gearbeitet, `npm run smoke:lock`.
 
+## Eine neue Fassung
+
+Die Version wird nicht von Hand gesetzt, sondern aus den Commits abgeleitet:
+
+```bash
+npm run release:dry   # zeigt, welche Version herauskäme und warum
+npm run release       # setzt sie, schreibt das CHANGELOG, committet und taggt
+```
+
+Ein `feat` hebt die zweite Stelle, ein `fix` die dritte, ein Ausrufezeichen
+hinter dem Typ oder ein `BREAKING CHANGE` im Rumpf die erste. `chore` und
+`docs` heben für sich genommen nichts, denn eine neue Fassung nur für eine
+Änderung am README hilft niemandem. Deshalb ist es nicht gleichgültig, wie ein
+Commit betitelt ist.
+
+Der Bau erinnert daran, wenn seit der letzten Fassung etwas liegen geblieben
+ist, bricht aber nie ab.
+
 ## Aufbau
 
 ```
